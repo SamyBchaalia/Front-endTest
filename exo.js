@@ -54,6 +54,33 @@ class Map {
   }
 
   getColoredMap() {
-    // TODO: That's where you work
+    // // TODO: That's where you work
+    var coloredmap = this.map.map((data) => [...data]);
+    const colorate = (i, j, color) => {
+      if (
+        i >= 0 &&
+        j >= 0 &&
+        i < coloredmap.length &&
+        j < coloredmap[i].length &&
+        coloredmap[i][j] === EARTH_POINT_TYPE
+      ) {
+        coloredmap[i][j] = color;
+        colorate(i + 1, j, color); // top
+        colorate(i, j + 1, color); // right
+        colorate(i - 1, j, color); // bottom
+        colorate(i, j - 1, color); // left
+      }
+    };
+    for (var i = 0; i < coloredmap.length; i++) {
+      for (var j = 0; j < coloredmap[i].length; j++) {
+        if (coloredmap[i][j] == WATER_POINT_TYPE) {
+          coloredmap[i][j] = DEFAULT_COLORS[coloredmap[i][j]];
+        } else if (coloredmap[i][j] == EARTH_POINT_TYPE) {
+          colorate(i, j, this.generateRandomColor(), coloredmap);
+        }
+      }
+    }
+
+    return coloredmap;
   }
 }
