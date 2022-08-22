@@ -52,35 +52,45 @@ class Map {
     }
     return rawMap;
   }
+  //get A copy of the dimentional array
+  makeMapCopy() {
+    const newMap = [];
+    for (let i = 0; i < this.map.length; i++) {
+      newMap[i] = this.map[i].slice();
+    }
+    return newMap;
+  }
+  //this function is the one responsible of changing the map colors
+  colorate(row, col, color, coloredMap) {
+    if (coloredMap[row][col] === WATER_POINT_TYPE) {
+      coloredMap[row][col] = DEFAULT_COLORS[coloredMap[row][col]];
+      return;
+    }
+    if (coloredMap[row][col] !== EARTH_POINT_TYPE) return;
+    coloredMap[row][col] = color;
+    const neighbors = this.getNeighbors(coloredMap, row, col);
+    for (const [neighborRow, neighborCol] of neighbors) {
+      this.colorate(neighborRow, neighborCol, color, coloredMap);
+    }
+  }
+  //get neighborhood (adjacents cells top,bottom,left,right)
+  getNeighbors(coloredMap, row, col) {
+    const neighbors = [];
+    if (row !== 0) neighbors.push([row - 1, col]);
+    if (col !== 0) neighbors.push([row, col - 1]);
+    if (row !== coloredMap.length - 1) neighbors.push([row + 1, col]);
+    if (col !== coloredMap[0].length - 1) neighbors.push([row, col + 1]);
+    return neighbors;
+  }
 
   getColoredMap() {
     // // TODO: That's where you work
-    var coloredmap = this.map.map((data) => [...data]);
-    const colorate = (i, j, color) => {
-      if (
-        i >= 0 &&
-        j >= 0 &&
-        i < coloredmap.length &&
-        j < coloredmap[i].length &&
-        coloredmap[i][j] === EARTH_POINT_TYPE
-      ) {
-        coloredmap[i][j] = color;
-        colorate(i + 1, j, color); // top
-        colorate(i, j + 1, color); // right
-        colorate(i - 1, j, color); // bottom
-        colorate(i, j - 1, color); // left
-      }
-    };
-    for (var i = 0; i < coloredmap.length; i++) {
-      for (var j = 0; j < coloredmap[i].length; j++) {
-        if (coloredmap[i][j] == WATER_POINT_TYPE) {
-          coloredmap[i][j] = DEFAULT_COLORS[coloredmap[i][j]];
-        } else if (coloredmap[i][j] == EARTH_POINT_TYPE) {
-          colorate(i, j, this.generateRandomColor(), coloredmap);
-        }
+    const coloredMap = this.makeMapCopy();
+    for (let i = 0; i < coloredMap.length; i++) {
+      for (let j = 0; j < coloredMap[i].length; j++) {
+        this.colorate(i, j, this.generateRandomColor(), coloredMap);
       }
     }
-
-    return coloredmap;
+    return coloredMap;
   }
 }
